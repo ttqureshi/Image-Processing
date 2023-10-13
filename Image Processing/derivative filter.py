@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import math
 
-image = cv.imread('image.jpg')
+image = cv.imread('imgs/image.jpg')
 resized_image = cv.resize(image, (900, 650))
 cv.imshow('Image',image)
 cv.imshow('Resized Image',resized_image)

@@ -23,18 +23,35 @@ Created on Tue Oct  3 13:40:24 2023
 
 
 
+# import numpy as np
+# import cv2 as cv
+
+# image = cv.imread('imgs/image.jpg')
+# image_shape = image.shape
+# cv.imshow("Original Image",image)
+# image[:,:,0] = np.zeros_like(image[:,:,0])
+# image[:,:,1] = np.zeros_like(image[:,:,1])
+# r_channel = image[:,:,2]
+# r_shape = r_channel.shape
+# cv.imshow('r_channel',r_channel)
+# cv.imshow('red Channel',image)
+
+# cv.waitKey(0)
+# cv.destroyAllWindows()
+
+
+
 import numpy as np
-import cv2 as cv
 
-image = cv.imread('image.jpg')
-image_shape = image.shape
-cv.imshow("Original Image",image)
-image[:,:,0] = np.zeros_like(image[:,:,0])
-image[:,:,1] = np.zeros_like(image[:,:,1])
-r_channel = image[:,:,2]
-r_shape = r_channel.shape
-cv.imshow('r_channel',r_channel)
-cv.imshow('red Channel',image)
+a = np.array([[0,1]])
+shape = a.shape
+aa = a[0].shape
 
-cv.waitKey(0)
-cv.destroyAllWindows()
+
+
+
+
+
+
+
+

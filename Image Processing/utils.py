@@ -2,7 +2,7 @@ import numpy as np
 import math
 import cv2 as cv
 
-def correlation(image_gray, fltr, anchor_filter=[0,0], zero_image_padding=True):
+def correlation(image_gray, fltr, anchor_filter=[[0,0]], axis=None, pad_zeros=True):
     """
 
     Parameters
@@ -10,11 +10,16 @@ def correlation(image_gray, fltr, anchor_filter=[0,0], zero_image_padding=True):
     image_gray : Grayscale image
     
     fltr : Filter to be applied on grayscale image
+        DESCRIPTION: provide 2D list.
     
-    anchor_filter : anchor or pivot index of filter, optional
-        DESCRIPTION: Assuming the filter is 2D. The default is [0,0]. If filter is 1D just set it to [0]
+    anchor_filter : anchor or pivot of filter, optional
+        DESCRIPTION: Default is set to [[0,0]]
     
-    zero_image_padding : boolean
+    axis: The axis along which the filter is to be applied
+        DESCRIPTION: only needed when the fltr has one row. 0=>vertical, 1=>horizontal.
+                     Default is None (if not provided)
+    
+    pad_zeros : boolean
         DESCRIPTION: if False, pads the image by mirroring the neighboring pixel values, otherwise pads with 0.
                      The default is True.
 
