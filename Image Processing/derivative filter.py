@@ -1,3 +1,8 @@
+"""
+Author: Muhammad Tayyab Tahir Qureshi
+Github: github.com/ttqureshi
+"""
+
 import numpy as np
 import cv2 as cv
 import math
