@@ -56,31 +56,69 @@ def correlation(image_gray, fltr, anchor_filter=[0,0], pad_zeros=True):
                         except:
                             val = 0
                     mul_accumulate += val*fltr[rf,cf]
-            filtered_image[row,col] = abs(mul_accumulate)                   
+            filtered_image[row,col] = abs(mul_accumulate)
     return filtered_image
 
 
+def gradient(image_gray):
+    """
+
+    Parameters
+    ----------
+    image_gray : Grayscale image
+        DESCRIPTION.
+
+    Returns
+    -------
+    gradient_img: edges detected in image_gray
+
+    """
+    filter_y = np.array([
+        [-0.5,0,0.5]
+        ])
+    anchor_y = [0,1]
+    filter_x = filter_y.reshape((-1,1))
+    anchor_x = [1,0]
+    
+    di_dx = correlation(image_gray, filter_x, anchor_x).astype(np.uint16)
+    di_dy = correlation(image_gray, filter_y, anchor_y).astype(np.uint16)
+    
+    gradient_img = np.sqrt(np.square(di_dx) + np.square(di_dy)).astype(np.uint8)
+    
+    return gradient_img
+        
 
 
 
-# TEST CASES FOR correlation():-
-
-image = np.array([
-    [250,35,126,101,41,219,108,4],
-    [143,78,88,234,74,154,27,50],
-    [219,123,230,105,171,55,107,81]
-    ])
-s = image.shape
-f = np.array([
-    [-1,1,1],
-    [-1,2,1]
-    ])
-fs = f.shape
-
-result = correlation(image,f,[1,1])
-print(result)
-
-
+if __name__ == "__main__":
+    # TEST CASES FOR correlation():-
+    
+    image = np.array([
+        [250,35,126,101,41,219,108,4],
+        [143,78,88,234,74,154,27,50],
+        [219,123,230,105,171,55,107,81]
+        ])
+    s = image.shape
+    f = np.array([
+        [-1,1,1],
+        [-1,2,1]
+        ])
+    fs = f.shape
+    
+    result = correlation(image,f,[1,1])
+    print(result)
+    
+    
+    # TEST CASES FOR gradient():-
+    image = cv.imread('imgs/image.jpg')
+    resized = cv.resize(image, (900,650))
+    cv.imshow("Image Resized",resized)
+    image_gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+    grad = gradient(image_gray)
+    cv.imshow('Edges',grad)
+    
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 
 
