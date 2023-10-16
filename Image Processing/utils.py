@@ -6,6 +6,7 @@ Github: github.com/ttqureshi/
 import numpy as np
 import math
 import cv2 as cv
+import warnings
 
 def correlation(image_gray, fltr, anchor_filter=[0,0], pad_zeros=True):
     """
@@ -86,6 +87,28 @@ def gradient(image_gray):
     gradient_img = np.sqrt(np.square(di_dx) + np.square(di_dy)).astype(np.uint8)
     
     return gradient_img
+
+    
+def add_gauusian_noise(image,mean,std):
+    """
+
+    Parameters
+    ----------
+    image : input image
+        
+    mean : mean of gaussian
+        
+    std : standard deviation of gaussian
+        
+    Returns
+    -------
+    noisy_image: noise added to input image
+
+    """
+    noise = np.zeros(image.shape, dtype=np.uint8)
+    cv.randn(noise, mean, std)
+    noisy_image = cv.add(image, noise)
+    return noisy_image
         
 
 
@@ -104,16 +127,17 @@ if __name__ == "__main__":
         [-1,2,1]
         ])
     fs = f.shape
+    anchor = [1,1]
     
-    result = correlation(image,f,[1,1])
+    result = correlation(image,f)
     print(result)
     
     
     # TEST CASES FOR gradient():-
-    image = cv.imread('imgs/image.jpg')
-    resized = cv.resize(image, (900,650))
-    cv.imshow("Image Resized",resized)
-    image_gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+    image = cv.imread('imgs/mttq.jpg')
+    # resized = cv.resize(image, (300,200))
+    cv.imshow("Image Resized",image)
+    image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     grad = gradient(image_gray)
     cv.imshow('Edges',grad)
     
