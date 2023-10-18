@@ -116,55 +116,30 @@ def get_gaussian_dist(size, std):
 
     Parameters
     ----------
-    size : TYPE => ndarray
-        DESCRIPTION. a vector to specify the mean position. mean should have odd values i.e., [3,3], [5,5] etc. If even is given rounds it to the nearest odd value tuple.
+    size : TYPE => tuple
+        DESCRIPTION. tuple of size 2 having both entries same and they should be odd not less than (3,3)
     std  : TYPE => int
         DESCRIPTION => standard deviation of gaussian.
-
+        
     Returns
     -------
     gauss_dist: type => ndarray
         DESCRIPTION. gaussian distribution of input size
 
     """
-    def gaussian_3d(n,mean,cov_mat):
-        """
-
-        Parameters
-        ----------
-        n : TYPE => ndarray
-            DESCRIPTION => a vector to specify the point where we want to get the gaussian distribution value
-        mean : TYPE => ndarray
-            DESCRIPTION => mean of gaussian distribution. A vector with 2 elements to specify x and y coordinates of mean 
-        cov_mat : TYPE => ndarray
-            DESCRIPTION => a 2D diagonal matrix with diagnoal entries equal to standard deviation of distribution
-
-        Returns
-        -------
-        gauss_n: TYPE => float
-            DESCRIPTION => value of gaussian at index [x,y]
-
-        """
-        det_cov_mat = np.linalg.det(cov_mat)
-        inv_cov_mat = np.linalg.inv(cov_mat)
-        
-        constant = 1/(2*np.pi*np.sqrt(det_cov_mat))
-        mean_dist = n - mean # distance of point n from mean
-        exponent = np.exp(-0.5*np.transpose(mean_dist)*np.square(inv_cov_mat)*mean_dist)
-        
-        gauss_n = constant*exponent.flatten()[0]
-        return gauss_n
-    
-    mean = (size//2).reshape(1,-1)
+    x = np.linspace(-1*(size[0]//2), size[0]//2,size[0])
+    y = np.linspace(-1*(size[0]//2), size[0]//2,size[0])
+    x,y = np.meshgrid(x,y)
     cov_mat = np.identity(2,dtype=np.int8) * std
-    gauss_dist = np.zeros(size)
-    
-    for x in range(size[0]):
-        for y in range(size[1]):
-            n = np.array([x,y])
-            val_n = gaussian_3d(n, mean, cov_mat)
-            gauss_dist[n[0],n[1]] = val_n
+    det_cov_mat = np.linalg.det(cov_mat)
+    inv_cov_mat = np.linalg.inv(cov_mat)
+    mean = [0,0]
+    constant = 1/(2*np.pi*np.sqrt(det_cov_mat))
+    xy_matrix = np.column_stack((x.flatten() - mean[0], y.flatten() - mean[1]))
+    exponent = -0.5 * np.einsum('ij,ij->i', np.dot(xy_matrix, inv_cov_mat), xy_matrix)
+    gauss_dist = constant * np.exp(exponent).reshape(x.shape)
     return gauss_dist
+    
     
     
     
