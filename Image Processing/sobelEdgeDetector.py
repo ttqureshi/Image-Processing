@@ -3,38 +3,34 @@ import cv2 as cv
 import utils
 
 image = cv.imread('imgs/person.jpg')
-cv.imshow('Original Image',image)
-g = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-temp = utils.gradient(g)
-cv.imshow('before adding noise',temp)
+cv.imshow('Original Image', image)
+image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+cv.imshow('Grayscale',image_gray)
 
-# Adding noise to the image
+# Adding noise to grayscale image
 mean = 0
-stddev = 70
-# noise = np.zeros(image.shape, dtype=np.uint8)
-# cv.randn(noise,mean,stddev)
-# noisy_img = cv.add(image,noise)
-# cv.imshow('noisy Image',noisy_img)
+std = 10
+noisy_image_gray = utils.add_gauusian_noise(image_gray, mean, std)
+cv.imshow('Noisy Image',noisy_image_gray)
 
-noisy_image = utils.add_gauusian_noise(image, mean, stddev)
-cv.imshow('noisy Image',noisy_image)
-
+# Applying weighted smoothing
 weighted_filter = np.array([
-    [1/11,1/11,1/11],
-    [1/11,3/11,1/11],
-    [1/11,1/11,1/11]
-    ])
+    [1,1,1],
+    [1,3,1],
+    [1,1,1]
+    ],dtype=np.float64)
+weighted_filter /= np.einsum('ij->', weighted_filter)
+size = weighted_filter.shape
 
-filtered = utils.correlation(noisy_image, weighted_filter, [1,1])
-cv.imshow('filtered',filtered)
-cv.imwrite('imgs/denoised.jpg', filtered)
+weighted_smooth = utils.correlation(noisy_image_gray, weighted_filter,anchor_filter=[size[0]//2,size[1]//2])
+cv.imshow('Weighted smoothing', weighted_smooth)
 
-image_gray = cv.cvtColor(noisy_image, cv.COLOR_BGR2GRAY)
+# Applying gradient filter to get the edges
+edges = utils.gradient(weighted_smooth)
+cv.imshow('Edges',edges)
 
-edges = utils.gradient(image_gray)
-cv.imshow('edges',edges)
+noisy_edges = utils.gradient(noisy_image_gray)
+cv.imshow('Edges of noisy image',noisy_edges)
 
 cv.waitKey(0)
 cv.destroyAllWindows()
-
-
