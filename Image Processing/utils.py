@@ -8,7 +8,7 @@ import math
 import cv2 as cv
 import warnings
 
-def correlation(image_gray, fltr, anchor_filter=[0,0], pad_zeros=True):
+def apply_filter(image_gray, fltr, anchor_filter=[0,0], pad_zeros=True):
     """
 
     Parameters
@@ -81,8 +81,8 @@ def gradient(image_gray):
     filter_x = filter_y.reshape((-1,1))
     anchor_x = [1,0]
     
-    di_dx = correlation(image_gray, filter_x, anchor_x).astype(np.uint16)
-    di_dy = correlation(image_gray, filter_y, anchor_y).astype(np.uint16)
+    di_dx = apply_filter(image_gray, filter_x, anchor_x).astype(np.uint16)
+    di_dy = apply_filter(image_gray, filter_y, anchor_y).astype(np.uint16)
     
     gradient_img = np.sqrt(np.square(di_dx) + np.square(di_dy)).astype(np.uint8)
     
@@ -142,28 +142,22 @@ def get_gaussian_dist(size, std):
     
     
     
-    
-    
-def denoise_gaussian(image, ker_size=(3,3)):
+def edge_detector(image, name):
     """
-    Applies the gaussian filter to the noisy image and returns the smoothened or denoised image
-
 
     Parameters
     ----------
-    image : noisy image
-        
-    ker_size : size of filter, takes a tuple, optional
-        DESCRIPTION. The default is (3,3).
-                     Kernel size can only take odd values if not provided then takes the nearest odd size.
+    image : type => ndarray of uint8
+        DESCRIPTION. RGB image
+    name : string
+        DESCRIPTION. tells which edge detector to use. Can only take either "sobel" or "dog" (dog for derivative of gaussian)
 
     Returns
     -------
-    denoised_img: denoised image
+    None.
 
     """
-    pass
-    
+
     
 
 
@@ -171,7 +165,7 @@ def denoise_gaussian(image, ker_size=(3,3)):
 if __name__ == "__main__":
     
 # =============================================================================
-#     # TEST CASES FOR correlation():-
+#     # TEST CASES FOR apply_filter():-
 #     image = np.array([
 #         [250,35,126,101,41,219,108,4],
 #         [143,78,88,234,74,154,27,50],
@@ -185,7 +179,7 @@ if __name__ == "__main__":
 #     fs = f.shape
 #     anchor = [1,1]
 #     
-#     result = correlation(image,f)
+#     result = apply_filter(image,f)
 #     print(result)
 # =============================================================================
     

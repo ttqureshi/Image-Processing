@@ -27,7 +27,7 @@ weighted_filter = np.array([
 weighted_filter /= np.einsum('ij->', weighted_filter)
 size = weighted_filter.shape
 
-weighted_smooth = utils.correlation(noisy_image_gray, weighted_filter,anchor_filter=[size[0]//2,size[1]//2])
+weighted_smooth = utils.apply_filter(noisy_image_gray, weighted_filter,anchor_filter=[size[0]//2,size[1]//2])
 cv.imshow('Weighted smoothing', weighted_smooth)
 
 # Applying gradient filter to get the edges
