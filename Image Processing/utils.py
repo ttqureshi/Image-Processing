@@ -205,7 +205,7 @@ if __name__ == "__main__":
     
     
     # TEST CASES FOR get_gaussian_dist():-
-    gauss = get_gaussian_dist(np.array([5,5]), 1)
+    gauss = get_gaussian_dist((5,5), 1)
     print(gauss)
 
 

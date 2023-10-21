@@ -14,7 +14,7 @@ cv.imshow('Grayscale',image_gray)
 
 # Adding noise to grayscale image
 mean = 0
-std = 10
+std = 15
 noisy_image_gray = utils.add_gauusian_noise(image_gray, mean, std)
 cv.imshow('Noisy Image',noisy_image_gray)
 
@@ -36,6 +36,7 @@ cv.imshow('Edges',edges)
 
 noisy_edges = utils.gradient(noisy_image_gray)
 cv.imshow('Edges of noisy image',noisy_edges)
+
 
 
 # Saving results
