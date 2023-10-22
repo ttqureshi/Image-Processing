@@ -142,14 +142,14 @@ def get_gaussian_dist(size, std):
     
     
     
-def edge_detector(image, name):
+def edge_detector(image, type):
     """
 
     Parameters
     ----------
     image : type => ndarray of uint8
         DESCRIPTION. RGB image
-    name : string
+    type : string
         DESCRIPTION. tells which edge detector to use. Can only take either "sobel" or "dog" (dog for derivative of gaussian)
 
     Returns
@@ -157,6 +157,7 @@ def edge_detector(image, name):
     None.
 
     """
+    pass
 
     
 
