@@ -1,3 +1,3 @@
 ## License
 
-[MIT License](LICENSE)
+[LGPL-2.1 license](LICENSE)
