@@ -18,7 +18,7 @@ cv.imshow("Gray Image",image_gray)
 
 
 # Efficient version
-t2 = time.time()
+
 pad_width = ((1,1),(1,1))
 padded = np.pad(image_gray, pad_width, mode='constant', constant_values=0)
 
@@ -42,7 +42,6 @@ for i in range(1,m-1):
         else:
             new_image[i-1,j-1] = mag
 
-print(time.time()-t2)
         
 
 
