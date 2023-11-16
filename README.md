@@ -1,3 +1,3 @@
 ## License
 
-[LGPL-2.1 license](LICENSE)
+[CC0 1.0 Universal](LICENSE)
