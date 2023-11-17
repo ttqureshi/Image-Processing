@@ -1,5 +1,7 @@
 import numpy as np
 import cv2 as cv
+import math
+import time
 import utils
 
 img = cv.imread('imgs/einstein.jpg')
@@ -26,15 +28,49 @@ cv.imshow('DoG', dog_edges)
 # =============================================================================
 
 # First we need to find the quantized gradient
-# Writing the direction vectors (v_1 to v_8) pointing in the direction of eight neighbors given a pixel n.   
-v_1 = np.array([ 0, 1])
-v_2 = np.array([-1, 1])
-v_3 = np.array([-1, 0])
-v_4 = np.array([-1,-1])
-v_5 = np.array([ 0,-1])
-v_6 = np.array([ 1,-1])
-v_7 = np.array([ 1, 0])
-v_8 = np.array([ 1, 1])
+# v_ks, a numpy array of shape (8,2), where i-th row in v_ks is the direction vector of i-th neighbor w.r.t. the pixel n 
+v_ks = np.array([
+    [ 0, 1],
+    [-1, 1],
+    [-1, 0],
+    [-1,-1],
+    [ 0,-1],
+    [ 1,-1],
+    [ 1, 0],
+    [ 1, 1]
+    ])
+
+# unit_v_ks => ndarray of shape same as v_ks, containing the unit direction vectors
+def get_vec_mag(vector):
+    return math.sqrt(sum(pow(element, 2) for element in vector))
+def get_unit_vec(vector):
+    mag = get_vec_mag(vector)
+    return vector/mag
+
+unit_v_ks = np.apply_along_axis(get_unit_vec, axis=1, arr=v_ks)
+
+non_maxima_arr = np.zeros_like(dog_edges)
+
+# calculating and storing the magnitude of gradient at each pixel of the 'dog_edges' image in a separate array 
+gradients_mag = np.zeros_like(dog_edges)
+
+pad_width = ((1,1),(1,1))
+padded = np.pad(dog_edges, pad_width, mode='constant', constant_values=0)
+m,n = padded.shape
+
+fltr = np.array([-0.5,0,0.5])
+gradient = np.zeros((2,))
+
+for i in range(1,m-1):
+    for j in range(1,n-1):
+        row_slice = padded[i, j-1:j+2]
+        col_slice = padded[i-1:i+2, j]
+        gradient[0] = np.dot(fltr, col_slice)
+        gradient[0] = np.dot(fltr, row_slice)
+        gradients_mag[i-1,j-1] = get_vec_mag(gradient)
+
+
+        
 
 # Now loop over all the pixels and at each pixel calculate the gradient vector and quantize it's direction to any one of the eight direction vectors of it's 8 neighbors     
 
