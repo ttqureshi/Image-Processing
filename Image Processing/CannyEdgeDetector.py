@@ -1,11 +1,18 @@
+"""
+Author: Muhammad Tayyab Tahir Qureshi
+Github: github.com/ttqureshi
+"""
+
 import numpy as np
 import cv2 as cv
 import math
 import time
 import utils
 
-img = cv.imread('imgs/einstein.jpg')
+img = cv.imread('imgs/img.jpg')
 cv.imshow('Original Image', img)
+# img = cv.resize(img, (950,400))
+# cv.imshow('resized', img)
 img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 cv.imshow('Grayscale',img_gray)
 
@@ -14,12 +21,13 @@ cv.imshow('Grayscale',img_gray)
 # =============================================================================
 
 # first apply the gaussian filter (here i'm using opencv GaussianBlur() function to make it computationally efficient)
-gauss_blur = cv.GaussianBlur(img_gray, (5,5), 1)
+gauss_blur = cv.GaussianBlur(img_gray, (3,3), 1)
 cv.imshow('Gaussain Blur', gauss_blur)
 
 # now apply the derivative filter (here---using the custom built function, gradient() in utils.py)
 dog_edges = utils.gradient(gauss_blur) # here dog_edges means 'edges found by derivative of gaussian'
 cv.imshow('DoG', dog_edges)
+cv.imwrite('imgs/canny_edge_detector_results/before_non_maxima.jpg', dog_edges)
 
 
 
@@ -49,10 +57,13 @@ def get_unit_vec(vector):
 
 unit_v_ks = np.apply_along_axis(get_unit_vec, axis=1, arr=v_ks)
 
-non_maxima_arr = np.zeros_like(dog_edges)
+# non_maxima_arr = np.zeros_like(dog_edges)
 
-# calculating and storing the magnitude of gradient at each pixel of the 'dog_edges' image in a separate array 
-gradients_mag = np.zeros_like(dog_edges)
+# calculating and storing the gradients as well as their magnitude at each pixel of the 'dog_edges' image in a separate arrays 'gradient_vecs' & 'gradient_mags' respectively 
+r,c = dog_edges.shape
+gradient_vecs = np.zeros((r,c,2), dtype=np.float32)
+gradient_mags = np.zeros((r,c), dtype=np.float32)
+non_maxima_arr = np.zeros((r,c))
 
 pad_width = ((1,1),(1,1))
 padded = np.pad(dog_edges, pad_width, mode='constant', constant_values=0)
@@ -66,8 +77,43 @@ for i in range(1,m-1):
         row_slice = padded[i, j-1:j+2]
         col_slice = padded[i-1:i+2, j]
         gradient[0] = np.dot(fltr, col_slice)
-        gradient[0] = np.dot(fltr, row_slice)
-        gradients_mag[i-1,j-1] = get_vec_mag(gradient)
+        gradient[1] = np.dot(fltr, row_slice)
+        gradient_vecs[i-1,j-1] = gradient
+        gradient_mags[i-1,j-1] = get_vec_mag(gradient)
+
+# non-maxima suppression algorithm 
+def get_quant_grad_dir(r, c, unit_v_ks):
+    similarity = np.dot(gradient_vecs[r,c], unit_v_ks.T)/gradient_mags[r,c]
+    return np.argmax(similarity)
+
+for i in range(r):
+    for j in range(c):
+        if (dog_edges[i,j] == 0):
+            non_maxima_arr[i,j] = 1 # non-maxima 
+        else:
+            if (gradient_mags[i,j] != 0):
+                k1 = get_quant_grad_dir(i, j, unit_v_ks)
+                neighbor_1 = v_ks[(k1+2) % 8] # neighbor of [i,j] in the direction k1 
+                neighbor_2 = v_ks[(k1+6) % 8] # neighbor of [i,j] in the opposite direction of k1 
+                
+                if (gradient_mags[neighbor_1[0], neighbor_1[1]] > gradient_mags[i,j]):
+                    non_maxima_arr[i,j] = 1 # mark [i,j] pixel as non-maxima 
+                elif (gradient_mags[neighbor_2[0], neighbor_2[1]] > gradient_mags[i,j]):
+                    non_maxima_arr[i,j] = 1 # mark [i,j] pixel as non-maxima 
+            else:
+                try:
+                    if (dog_edges[i,j] < dog_edges[i, j+1]):
+                        non_maxima_arr[i,j] = 1
+                except:
+                    pass
+                    
+                    
+# Now use 'non_maxima_arr' as a mask array which is a boolean mask and use it to make the pixels in 'dog_edges' 0 where there's a 1 (non-maxima) in 'non_maxima_arr' 
+dog_edges[non_maxima_arr==0] = 0
+cv.imshow('Non-maxima suppression', dog_edges)
+cv.imwrite('imgs/canny_edge_detector_results/after_non_maxima.jpg', dog_edges)
+
+
 
 
         
