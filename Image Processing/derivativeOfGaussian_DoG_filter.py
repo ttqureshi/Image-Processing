@@ -21,7 +21,7 @@ cv.imshow('Noisy Image',noisy_image_gray)
 size = (3,3)
 gauss_filter = utils.get_gaussian_dist(size, std=2)
 
-gaussian_smooth = utils.apply_filter(noisy_image_gray, gauss_filter, anchor_filter=[size[0]//2,size[1]//2])
+gaussian_smooth = utils.apply_filter(noisy_image_gray, gauss_filter, anchor_filter=(size[0]//2,size[1]//2))
 cv.imshow('Gaussian smoothing', gaussian_smooth)
 
 # Applying gradient filter to get the edges

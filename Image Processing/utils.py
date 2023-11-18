@@ -6,58 +6,52 @@ Github: github.com/ttqureshi/
 import numpy as np
 import math
 import cv2 as cv
-import warnings
 
-def apply_filter(image_gray, fltr, anchor_filter=[0,0], pad_zeros=True):
+def apply_filter(image, fltr, anchor_filter=(0,0), pad_mode='zeros'):
     """
-
     Parameters
     ----------
-    image_gray : Grayscale image
+    image : image to be filtered
     
-    fltr : Filter to be applied on grayscale image
-        DESCRIPTION: takes 2D list.
+    fltr : Filter to be applied on grayscale image 
+        DESCRIPTION: takes 2D list 
     
-    anchor_filter : anchor or pivot of filter, optional
-        DESCRIPTION: Default is set to [0,0].
+    anchor_filter : TYPE => tuple 
+        DESCRIPTION: anchor or pivot of filter, optional 
+                     Default is (0,0) 
     
-    pad_zeros : boolean
-        DESCRIPTION: if False, pads the image by mirroring the neighboring pixel values, otherwise pads with 0.
-                     Default is True.
+    pad_mode : TYPE => string
+        DESCRIPTION: can either be 'zeros' or 'reflect', former pads the image by zeros and latter by mirroring the neighboring pixel values 
+                     Default is 'zeros'
 
     Returns
     -------
     filtered_image : filter applied on image_gray
     
     """
-    fltr_shape = fltr.shape
-    m = fltr_shape[0]
-    n = fltr_shape[1]
+    m, n = fltr.shape
+    top_fltr_width = anchor_filter[0]
+    bottom_fltr_width = m - anchor_filter[0] - 1
+    left_fltr_width = anchor_filter[1]
+    right_fltr_width = n - anchor_filter[1] - 1
+
+    pad_width = ((top_fltr_width, bottom_fltr_width),(left_fltr_width, right_fltr_width))
     
-    n_rows = image_gray.shape[0]
-    n_cols = image_gray.shape[1]
+    if (pad_mode == 'zeros'):
+        padded_img = np.pad(image, pad_width=pad_width, mode='constant', constant_values=0)
+    elif (pad_mode == 'reflect'):
+        padded_img = np.pad(image, pad_width=pad_width, mode='reflect')
+    else:
+        raise ValueError("Invalid pad mode. Supported modes: 'zeros', 'reflect'")
     
-    filtered_image = np.zeros_like(image_gray)
-    for col in range(n_cols):
-        for row in range(n_rows):
-            mul_accumulate = 0
-            for rf in range(m):
-                traverse_row = rf-anchor_filter[0]
-                r = row + traverse_row
-                for cf in range(n):
-                    traverse_col = cf-anchor_filter[1]
-                    c = col + traverse_col
-                    
-                    if r<0 or c<0:
-                        # image is being padded with zero
-                        val = 0
-                    else:
-                        try:
-                            val = image_gray[r,c]
-                        except:
-                            val = 0
-                    mul_accumulate += val*fltr[rf,cf]
-            filtered_image[row,col] = abs(mul_accumulate)
+    n_rows, n_cols = padded_img.shape
+    filtered_image = np.zeros_like(image)
+    
+    for i in range(top_fltr_width, n_rows - bottom_fltr_width):
+        for j in range(left_fltr_width, n_cols - right_fltr_width):
+            overlap = padded_img[(i-top_fltr_width):(i+bottom_fltr_width+1), (j-left_fltr_width):(j+right_fltr_width+1)]
+            filtered_image[i-top_fltr_width,j-left_fltr_width] = abs(np.sum(fltr * overlap))
+    
     return filtered_image
 
 
@@ -77,9 +71,9 @@ def gradient(image_gray):
     filter_y = np.array([
         [-0.5,0,0.5]
         ])
-    anchor_y = [0,1]
+    anchor_y = (0,1)
     filter_x = filter_y.reshape((-1,1))
-    anchor_x = [1,0]
+    anchor_x = (1,0)
     
     di_dx = apply_filter(image_gray, filter_x, anchor_x).astype(np.uint16)
     di_dy = apply_filter(image_gray, filter_y, anchor_y).astype(np.uint16)
@@ -145,7 +139,6 @@ def get_gaussian_dist(size, std):
 
 def get_vec_mag(vector):
     """
-
     Parameters
     ----------
     vector : 1D numpy array
@@ -153,7 +146,6 @@ def get_vec_mag(vector):
     Returns
     -------
     mag : The magnitude of input vector (1D numpy array)
-
     """
     mag = math.sqrt(sum(pow(element, 2) for element in vector))
     return mag
@@ -195,7 +187,7 @@ def get_unit_vec(vector):
 #     match mode:
 #         case "dog":
 #             gauss_filter = get_gaussian_dist(size, std)
-#             smoothing = apply_filter(image_gray, gauss_filter, anchor_filter=[size[0]//2,size[1]//2])
+#             smoothing = apply_filter(image_gray, gauss_filter, anchor_filter=(size[0]//2,size[1]//2))
 #             edges = gradient(smoothing)
 #         case "sobel":
 #             np
@@ -208,24 +200,23 @@ def get_unit_vec(vector):
 
 if __name__ == "__main__":
     
-# =============================================================================
-#     # TEST CASES FOR apply_filter():-
-#     image = np.array([
-#         [250,35,126,101,41,219,108,4],
-#         [143,78,88,234,74,154,27,50],
-#         [219,123,230,105,171,55,107,81]
-#         ])
-#     s = image.shape
-#     f = np.array([
-#         [-1,1,1],
-#         [-1,2,1]
-#         ])
-#     fs = f.shape
-#     anchor = [1,1]
-#     
-#     result = apply_filter(image,f)
-#     print(result)
-# =============================================================================
+    # TEST CASES FOR apply_filter():-
+    image = np.array([
+        [250,35,126,101,41,219,108,4],
+        [143,78,88,234,74,154,27,50],
+        [219,123,230,105,171,55,107,81]
+        ])
+    s = image.shape
+    f = np.array([
+        [-1,1,1],
+        [-1,2,1]
+        ])
+    fs = f.shape
+    anchor = (1,1)
+    
+    result = apply_filter(image,f,anchor_filter=anchor, pad_mode='reflect')
+    print(result)
+
     
     
 # =============================================================================
