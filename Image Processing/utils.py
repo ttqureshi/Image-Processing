@@ -111,6 +111,7 @@ def add_gauusian_noise(image,mean,std):
     return noisy_image
 
 
+
 def get_gaussian_dist(size, std):
     """
 
@@ -140,24 +141,66 @@ def get_gaussian_dist(size, std):
     gauss_dist = constant * np.exp(exponent).reshape(x.shape)
     return gauss_dist
     
-    
-    
-def edge_detector(image, type):
+
+
+def get_vec_mag(vector):
     """
 
     Parameters
     ----------
-    image : type => ndarray of uint8
-        DESCRIPTION. RGB image
-    type : string
-        DESCRIPTION. tells which edge detector to use. Can only take either "sobel" or "dog" (dog for derivative of gaussian)
+    vector : 1D numpy array
 
     Returns
     -------
-    None.
+    mag : The magnitude of input vector (1D numpy array)
 
     """
-    pass
+    mag = math.sqrt(sum(pow(element, 2) for element in vector))
+    return mag
+
+
+
+
+def get_unit_vec(vector):
+    """
+    Uses the get_vec_mag() function and returns the unit vector
+    """
+    mag = get_vec_mag(vector)
+    return vector/mag 
+
+
+    
+# =============================================================================
+# def edge_detector(image, size, mode='dog', std=10):
+#     """
+# 
+#     Parameters
+#     ----------
+#     image : TYPE => ndarray of uint8
+#         DESCRIPTION. RGB image
+#     size : TYPE => tuple
+#         DESCRIPTION. size of kernel/filter
+#     mode : TYPE -> string, optional
+#         DESCRIPTION. The default is 'dog' (derivative of gaussian). mode can only be "sobel" or "dog"
+#     std : TYPE => int, optional
+#         DESCRIPTION. Only needed in case of 'DoG' filter to set the standard deviation of gaussian.
+# 
+#     Returns
+#     -------
+#     edges : TYPE -> ndarray of uint8
+#         DESCRIPTION. returns the image showing the edges of input image
+# 
+#     """
+#     image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+#     match mode:
+#         case "dog":
+#             gauss_filter = get_gaussian_dist(size, std)
+#             smoothing = apply_filter(image_gray, gauss_filter, anchor_filter=[size[0]//2,size[1]//2])
+#             edges = gradient(smoothing)
+#         case "sobel":
+#             np
+# =============================================================================
+    
 
     
 
