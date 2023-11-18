@@ -70,10 +70,10 @@ gradient = np.zeros((2,))
 # looping over entire 'edges' image to store values in 'gradient_vecs' & 'gradient_mags' 
 for i in range(1,m-1):
     for j in range(1,n-1):
-        row_slice = padded[i, j-1:j+2]
-        col_slice = padded[i-1:i+2, j]
-        gradient[0] = np.dot(fltr, col_slice)
-        gradient[1] = np.dot(fltr, row_slice)
+        col_slice = padded[i, j-1:j+2]
+        row_slice = padded[i-1:i+2, j]
+        gradient[0] = np.dot(fltr, row_slice)
+        gradient[1] = np.dot(fltr, col_slice)
         gradient_vecs[i-1,j-1] = gradient
         gradient_mags[i-1,j-1] = utils.get_vec_mag(gradient)
 
