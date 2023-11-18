@@ -16,8 +16,9 @@ cv.imshow('Original Image', img)
 img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 cv.imshow('Grayscale',img_gray)
 
+
 # =============================================================================
-# Step 1 --- Derivative of Gaussian (DoG) 
+# # Step 1 --- Derivative of Gaussian (DoG) 
 # =============================================================================
 
 # first apply the gaussian filter (here i'm using opencv GaussianBlur() function to make it computationally efficient)
@@ -28,6 +29,7 @@ cv.imshow('Gaussain Blur', gauss_blur)
 edges = utils.gradient(img_gray) # here edges means 'edges found by derivative of gaussian'
 cv.imshow('DoG', edges)
 cv.imwrite('imgs/canny_edge_detector_results/before_non_maxima.jpg', edges)
+
 
 
 
@@ -49,13 +51,8 @@ v_ks = np.array([
     ])
 
 # unit_v_ks => ndarray of shape same as v_ks, containing the unit direction vectors
-def get_vec_mag(vector):
-    return math.sqrt(sum(pow(element, 2) for element in vector))
-def get_unit_vec(vector):
-    mag = get_vec_mag(vector)
-    return vector/mag
 
-unit_v_ks = np.apply_along_axis(get_unit_vec, axis=1, arr=v_ks)
+unit_v_ks = np.apply_along_axis(utils.get_unit_vec, axis=1, arr=v_ks)
 
 # calculating and storing the gradients as well as their magnitude at each pixel of the 'edges' image in a separate arrays 'gradient_vecs' & 'gradient_mags' respectively 
 r,c = edges.shape
@@ -77,12 +74,16 @@ for i in range(1,m-1):
         gradient[0] = np.dot(fltr, col_slice)
         gradient[1] = np.dot(fltr, row_slice)
         gradient_vecs[i-1,j-1] = gradient
-        gradient_mags[i-1,j-1] = get_vec_mag(gradient)
+        gradient_mags[i-1,j-1] = utils.get_vec_mag(gradient)
+
 
 # non-maxima suppression algorithm 
+
 def get_quant_grad_dir(r, c, unit_v_ks):
     similarity = np.dot(gradient_vecs[r,c], unit_v_ks.T)/gradient_mags[r,c]
     return np.argmax(similarity)
+
+# Looping over all the pixels and at each pixel calculate the gradient vector and quantize it's direction to any one of the eight direction vectors of it's 8 neighbors     
 
 for i in range(r):
     for j in range(c):
@@ -100,28 +101,13 @@ for i in range(r):
                     non_maxima_arr[i,j] = 1 # mark [i,j] pixel as non-maxima 
             else:
                 non_maxima_arr[i,j] = 1
-                    
-# Now use 'non_maxima_arr' as a mask array which is a boolean mask and use it to make the pixels in 'edges' 0 where there's a 1 (non-maxima) in 'non_maxima_arr' 
+                  
+
+# Using 'non_maxima_arr' as a mask array which is a boolean mask and use it to make the pixels in 'edges' 0 where there's a 1 (non-maxima) in 'non_maxima_arr' 
+
 edges[non_maxima_arr==0] = 0
 cv.imshow('Non-maxima suppression', edges)
 cv.imwrite('imgs/canny_edge_detector_results/after_non_maxima.jpg', edges)
-
-
-
-
-        
-
-# Now loop over all the pixels and at each pixel calculate the gradient vector and quantize it's direction to any one of the eight direction vectors of it's 8 neighbors     
-
-
-
-
-
-
-
-
-
-
 
 
 
