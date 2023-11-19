@@ -16,9 +16,6 @@ image_gray = cv.cvtColor(resized_image, cv.COLOR_BGR2GRAY)
 cv.imshow("Gray Image",image_gray)
 
 
-
-# Efficient version
-
 pad_width = ((1,1),(1,1))
 padded = np.pad(image_gray, pad_width, mode='constant', constant_values=0)
 
